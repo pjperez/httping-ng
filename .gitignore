@@ -1,0 +1,38 @@
+# Binaries
+httping-ng
+/build/
+
+# Output logs / temp files
+*.log
+*.out
+
+# IDE/editor junk
+*.swp
+*.swo
+*.tmp
+*.bak
+.DS_Store
+
+# Go build cache
+/pkg/
+/bin/
+/dist/
+
+# VSCode
+.vscode/
+
+# JetBrains IDEs
+.idea/
+
+# OS junk
+Thumbs.db
+
+# Test coverage
+*.cover
+coverage.out
+
+# JSON metrics output (if redirected)
+*.json
+
+# Unix socket (if created)
+*.sock
