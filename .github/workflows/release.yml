@@ -5,18 +5,31 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
-    name: Build & Upload Binaries
+    name: Build & Package
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        goos: [linux, darwin, windows]
-        goarch: [amd64, arm64]
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+          - goos: windows
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Set up Go
@@ -31,10 +44,18 @@ jobs:
         run: |
           mkdir -p dist
           EXT=""
-          if [ "${GOOS}" = "windows" ]; then EXT=".exe"; fi
-          go build -trimpath -ldflags="-s -w" -o dist/httping-ng-${GOOS}-${GOARCH}${EXT} ./cmd/httping
+          if [ "$GOOS" = "windows" ]; then EXT=".exe"; fi
+          BIN=httping-ng-$GOOS-$GOARCH$EXT
+          go build -trimpath -ldflags="-s -w" -o $BIN ./cmd/httping
+          
+          # Package
+          if [ "$GOOS" = "windows" ]; then
+            zip dist/$BIN.zip $BIN
+          else
+            tar -czf dist/$BIN.tar.gz $BIN
+          fi
 
-      - name: Upload binaries to release
+      - name: Upload release assets
         uses: softprops/action-gh-release@v1
         with:
           files: dist/*
